@@ -35,25 +35,25 @@
       margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background: radial-gradient(900px 520px at 50% -10%, rgba(106,165,255,.15), transparent) var(--bg);
       color: var(--text); line-height: 1.45;
-      font-size: 15px; /* etwas kompakter */
+      font-size: 15px;
     }
     .wrap{
-      max-width: 1180px; margin: 18px auto; padding: 0 14px;
-      display: flex; flex-direction: column; gap: 12px;
-      min-height: calc(100vh - 36px);
+      max-width: 1180px; margin: 12px auto; padding: 0 14px;
+      display: flex; flex-direction: column; gap: 10px;
+      min-height: calc(100vh - 24px);
     }
     header{ display: flex; align-items: center; justify-content: center; }
-    header h1{ margin:6px 0 2px; font-size: clamp(20px, 2.2vw, 26px); letter-spacing: .2px; }
+    header h1{ margin:6px 0 0; font-size: clamp(20px, 2.1vw, 26px); letter-spacing: .2px; }
 
     .card{
       background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
-      padding: 16px; border: 1px solid rgba(255,255,255,.05);
+      padding: 14px; border: 1px solid rgba(255,255,255,.05);
       display: flex; flex-direction: column; gap: 10px;
     }
 
-    /* Bildbereich kompakt halten, damit Full-HD ohne Scroll passt */
+    /* Größere Bildflächen, aber so, dass Full-HD ohne Scroll bleibt */
     .grid{
-      display: grid; gap: 12px;
+      display: grid; gap: 14px;
       grid-template-columns: 1fr 1fr;
       align-items: stretch;
     }
@@ -62,8 +62,8 @@
     .imgbox{
       position: relative; overflow: hidden; border-radius: 14px; background: #0a0f1e;
       border: 1px solid rgba(255,255,255,.06);
-      height: clamp(260px, 38vh, 460px); /* << Höhe begrenzt */
-      cursor: pointer;                 /* klickbar */
+      height: clamp(320px, 46vh, 600px); /* << etwas größer als vorher */
+      cursor: pointer;
       display: flex; align-items: center; justify-content: center;
     }
     .imgbox img{
@@ -75,12 +75,19 @@
 
     .hint{ color: var(--muted); font-size: 13px; margin: 0 0 2px; text-align: center; }
 
-    /* Alle Buttons unten */
+    /* Button-Reihe: drei Buttons */
     .controls{
-      display:grid; grid-template-columns: 1fr 1fr 1fr 1.2fr; gap: 10px; margin-top: 4px;
+      display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 4px;
       align-items: center;
     }
-    @media (max-width: 720px){ .controls{ grid-template-columns: 1fr; } }
+    /* Finish-Button separat darunter, volle Breite */
+    .finishbar{
+      display: grid; grid-template-columns: 1fr; margin-top: 6px;
+    }
+
+    @media (max-width: 720px){
+      .controls{ grid-template-columns: 1fr; }
+    }
 
     button{
       appearance: none; border: 0; border-radius: 12px; padding: 12px 14px;
@@ -97,12 +104,12 @@
     #btnRight{ background: linear-gradient(0deg, rgba(16,185,129,.18), transparent), var(--btn); }
     #btnTie{ background: linear-gradient(0deg, rgba(168,85,247,.18), transparent), var(--btn); }
 
-    /* "Fertig & senden" größer und auffälliger */
+    /* "Fertig & senden" extra groß & auffällig */
     #btnFinish{
       background: linear-gradient(90deg, var(--accent), var(--accent-2));
       color: #0b1020;
-      padding: 14px 22px;
-      font-size: 16px;
+      padding: 16px 24px;
+      font-size: 17px;
     }
 
     .footer{
@@ -128,11 +135,15 @@
         <div id="boxB" class="imgbox" title="Rechts gewinnt (anklicken)"><img id="imgB" alt="Bild B" /></div>
       </div>
 
-      <!-- Alle Knöpfe unten -->
+      <!-- Drei Buttons in einer Reihe -->
       <div class="controls">
         <button id="btnLeft">← Links gewinnt</button>
         <button id="btnTie">Unentschieden</button>
         <button id="btnRight">Rechts gewinnt →</button>
+      </div>
+
+      <!-- Fertig & senden unten, volle Breite -->
+      <div class="finishbar">
         <button id="btnFinish">Fertig &amp; senden</button>
       </div>
 
@@ -143,18 +154,13 @@
     </div>
   </div>
 
-  <!-- Dein Script MUSS am Ende bleiben -->
+  <!-- Bildflächen klickbar machen -->
   <script type="module">
-    // Bildflächen klickbar machen (IDs aus app.js nutzen)
     const boxA = document.getElementById('boxA');
     const boxB = document.getElementById('boxB');
-
-    // Warten bis app.js die Handler setzt
     window.addEventListener('DOMContentLoaded', () => {
-      // Klickevents simulieren die Button-Klicks
       const btnLeft  = document.getElementById('btnLeft');
       const btnRight = document.getElementById('btnRight');
-
       boxA.addEventListener('click', () => btnLeft.click());
       boxB.addEventListener('click', () => btnRight.click());
     });
