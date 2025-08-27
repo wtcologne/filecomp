@@ -38,20 +38,22 @@
       font-size: 15px;
     }
     .wrap{
-      max-width: 1180px; margin: 12px auto; padding: 0 14px;
-      display: flex; flex-direction: column; gap: 10px;
-      min-height: calc(100vh - 24px);
+      max-width: 1280px; margin: 10px auto; padding: 0 14px;
+      display: flex; flex-direction: column; gap: 8px;
+      min-height: calc(100vh - 20px);
     }
     header{ display: flex; align-items: center; justify-content: center; }
-    header h1{ margin:6px 0 0; font-size: clamp(20px, 2.1vw, 26px); letter-spacing: .2px; }
+    header h1{ margin:4px 0 0; font-size: clamp(20px, 2.1vw, 26px); letter-spacing: .2px; }
 
     .card{
       background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
-      padding: 14px; border: 1px solid rgba(255,255,255,.05);
-      display: flex; flex-direction: column; gap: 10px;
+      padding: 12px; border: 1px solid rgba(255,255,255,.05);
+      display: flex; flex-direction: column; gap: 8px;
     }
 
-    /* Größere Bildflächen, aber so, dass Full-HD ohne Scroll bleibt */
+    .hint{ color: var(--muted); font-size: 13px; margin: 0 0 2px; text-align: center; }
+
+    /* Größere Bildflächen – Full-HD ohne Scroll bleibt erhalten */
     .grid{
       display: grid; gap: 14px;
       grid-template-columns: 1fr 1fr;
@@ -62,7 +64,7 @@
     .imgbox{
       position: relative; overflow: hidden; border-radius: 14px; background: #0a0f1e;
       border: 1px solid rgba(255,255,255,.06);
-      height: clamp(320px, 46vh, 600px); /* << etwas größer als vorher */
+      height: clamp(380px, 52vh, 720px); /* << größer */
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
     }
@@ -73,22 +75,17 @@
     }
     .imgbox:hover img{ transform: scale(1.01); }
 
-    .hint{ color: var(--muted); font-size: 13px; margin: 0 0 2px; text-align: center; }
-
-    /* Button-Reihe: drei Buttons */
-    .controls{
-      display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 4px;
-      align-items: center;
+    /* Versteckte (unsichtbare) Buttons im DOM lassen, damit app.js nicht kracht */
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0, 0, 1px, 1px); white-space: nowrap; border: 0;
     }
-    /* Finish-Button separat darunter, volle Breite */
+
+    /* Nur noch der große Finish-Button sichtbar */
     .finishbar{
       display: grid; grid-template-columns: 1fr; margin-top: 6px;
     }
-
-    @media (max-width: 720px){
-      .controls{ grid-template-columns: 1fr; }
-    }
-
     button{
       appearance: none; border: 0; border-radius: 12px; padding: 12px 14px;
       background: var(--btn); color: var(--text); font-weight: 700; cursor: pointer;
@@ -100,11 +97,6 @@
     button:active{ transform: translateY(1px); }
     button:focus-visible{ outline: 3px solid var(--ring); outline-offset: 2px; }
 
-    #btnLeft{ background: linear-gradient(0deg, rgba(99,102,241,.15), transparent), var(--btn); }
-    #btnRight{ background: linear-gradient(0deg, rgba(16,185,129,.18), transparent), var(--btn); }
-    #btnTie{ background: linear-gradient(0deg, rgba(168,85,247,.18), transparent), var(--btn); }
-
-    /* "Fertig & senden" extra groß & auffällig */
     #btnFinish{
       background: linear-gradient(90deg, var(--accent), var(--accent-2));
       color: #0b1020;
@@ -113,7 +105,7 @@
     }
 
     .footer{
-      display:flex; align-items:center; justify-content: space-between; gap:10px; flex-wrap: wrap; margin-top: 6px;
+      display:flex; align-items:center; justify-content: space-between; gap:10px; flex-wrap: wrap; margin-top: 4px;
     }
     .status{
       color: var(--muted); font-size: 13px; padding: 8px 10px; background: rgba(255,255,255,.04);
@@ -128,39 +120,42 @@
     </header>
 
     <div class="card">
-      <p class="hint">Klicke auf ein Bild (links/rechts) oder nutze die Buttons. Am Ende wird automatisch eine Zusammenfassung hochgeladen.</p>
+      <p class="hint">Klicke oder tippe auf das Motiv, das dir besser gefällt. Am Ende wird automatisch eine Zusammenfassung hochgeladen.</p>
 
       <div class="grid" style="margin-top:6px">
-        <div id="boxA" class="imgbox" title="Links gewinnt (anklicken)"><img id="imgA" alt="Bild A" /></div>
-        <div id="boxB" class="imgbox" title="Rechts gewinnt (anklicken)"><img id="imgB" alt="Bild B" /></div>
+        <div id="boxA" class="imgbox" title="Motiv auswählen"><img id="imgA" alt="Bild A" /></div>
+        <div id="boxB" class="imgbox" title="Motiv auswählen"><img id="imgB" alt="Bild B" /></div>
       </div>
 
-      <!-- Drei Buttons in einer Reihe -->
-      <div class="controls">
-        <button id="btnLeft">← Links gewinnt</button>
+      <!-- Unsichtbare Buttons im DOM behalten (für app.js-Ereignisse) -->
+      <div class="visually-hidden">
+        <button id="btnLeft">Links gewinnt</button>
         <button id="btnTie">Unentschieden</button>
-        <button id="btnRight">Rechts gewinnt →</button>
+        <button id="btnRight">Rechts gewinnt</button>
       </div>
 
-      <!-- Fertig & senden unten, volle Breite -->
+      <!-- Nur noch der große Finish-Button -->
       <div class="finishbar">
         <button id="btnFinish">Fertig &amp; senden</button>
       </div>
 
       <div class="footer">
-        <p class="hint">Tipp: Pfeiltasten ↑/↓ wählen. Schließen ist ok – wir senden am Ende automatisch.</p>
+        <p class="hint">Schließen ist in Ordnung – die Zusammenfassung wird automatisch gesendet.</p>
         <p id="status" class="status">Bereit.</p>
       </div>
     </div>
   </div>
 
-  <!-- Bildflächen klickbar machen -->
+  <!-- Bildflächen anklickbar machen -->
   <script type="module">
     const boxA = document.getElementById('boxA');
     const boxB = document.getElementById('boxB');
+
     window.addEventListener('DOMContentLoaded', () => {
       const btnLeft  = document.getElementById('btnLeft');
       const btnRight = document.getElementById('btnRight');
+
+      // Klicks auf die Bilder triggern die (unsichtbaren) Buttons
       boxA.addEventListener('click', () => btnLeft.click());
       boxB.addEventListener('click', () => btnRight.click());
     });
