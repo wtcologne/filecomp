@@ -23,10 +23,10 @@ module.exports = async (req, res) => {
     }
 
     const {
-      SCIEBO_BASE_URL = https://dshs-koeln.sciebo.de/,      // z.B. https://xxxx.sciebo.de
-      SCIEBO_USERNAME = ik7859@dshs-koeln.de,      // dein sciebo Benutzername
-      SCIEBO_APP_PASSWORD = WF3Zw-MTCzy-yHJb2-ns8XE-giit8,  // App-Passwort (nicht dein Login-Passwort)
-      SCIEBO_TARGET_PATH = results    // z.B. elo-uploads
+      SCIEBO_BASE_URL,      // z.B. https://xxxx.sciebo.de
+      SCIEBO_USERNAME,      // dein sciebo Benutzername
+      SCIEBO_APP_PASSWORD,  // App-Passwort (nicht dein Login-Passwort)
+      SCIEBO_TARGET_PATH    // z.B. elo-uploads
     } = process.env;
 
     if (!SCIEBO_BASE_URL || !SCIEBO_USERNAME || !SCIEBO_APP_PASSWORD || !SCIEBO_TARGET_PATH) {
