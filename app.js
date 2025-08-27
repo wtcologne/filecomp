@@ -19,6 +19,7 @@ let images = [];
 let ratings = new Map();    // id -> rating
 let votes = [];             // {winner, loser, tie, ts}
 let currentPair = null;
+let sent = false;           // verhindert Doppel-Sendungen
 
 // --- ELO ---
 const expected = (ra, rb) => 1 / (1 + Math.pow(10, (rb - ra) / 400));
@@ -58,7 +59,7 @@ function showPair() {
   imgB.src = `./images/${b}`; imgB.alt = b;
 }
 
-// --- Upload ---
+// --- Upload (nur für Summary am Ende) ---
 function sendJSON(payload, {beacon=false} = {}) {
   const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
 
@@ -76,16 +77,6 @@ function sendJSON(payload, {beacon=false} = {}) {
   }).then(()=>{}).catch(()=>{});
 }
 
-// nach jedem Vote sofort senden
-async function pushVote(vote) {
-  try {
-    await sendJSON({ type: "vote", participantId, vote, tsServerless: Date.now() });
-    statusEl.textContent = `Gespeichert: ${votes.length} Stimmen`;
-  } catch {
-    statusEl.textContent = `Offline – wir versuchen es erneut …`;
-  }
-}
-
 // --- Handlers ---
 function onChoose(side) {
   if (!currentPair) return;
@@ -97,34 +88,59 @@ function onChoose(side) {
   updateElo(winner, loser, tie);
   const rec = { winner, loser, tie, ts: Date.now() };
   votes.push(rec);
-  pushVote(rec);      // sofortiger Upload pro Klick
+
+  // KEIN Upload hier – nur lokal zählen
+  statusEl.textContent = `Auswahl gespeichert: ${votes.length} Stimmen`;
   showPair();
 }
 
 async function finish() {
-  // Zusammenfassung + aktuelles ELO senden (zusätzlich zur Einzeldatenspur)
+  if (sent) return; // doppelte Sends verhindern
+  sent = true;
+
+  // Zusammenfassung + ALLE Stimmen + aktuelles ELO senden
   const ranking = Array.from(ratings.entries())
     .map(([id, rating]) => ({ id, rating }))
     .sort((x,y)=>y.rating - x.rating);
 
-  const payload = { type: "summary", participantId, votesCount: votes.length, ranking, ts: Date.now() };
+  const payload = {
+    type: "summary",
+    participantId,
+    votes,                 // <-- komplette Liste aller Duelle
+    votesCount: votes.length,
+    ranking,
+    ts: Date.now()
+  };
   await sendJSON(payload, {beacon:true});
   statusEl.textContent = "Zusammenfassung gesendet. Danke!";
 }
 
 // --- Init ---
 (async function init(){
-  const manifest = await fetch(MANIFEST_URL).then(r => r.json());
-  images = manifest.images || [];
-  images.forEach(id => ratings.set(id, 1500));
-  showPair();
-  document.getElementById("btnLeft").addEventListener("click", ()=>onChoose("left"));
-  document.getElementById("btnRight").addEventListener("click", ()=>onChoose("right"));
-  document.getElementById("btnTie").addEventListener("click", ()=>onChoose("tie"));
-  document.getElementById("btnFinish").addEventListener("click", finish);
+  try {
+    const manifest = await fetch(MANIFEST_URL).then(r => r.json());
+    images = manifest.images || [];
+    images.forEach(id => ratings.set(id, 1500));
 
-  // beim Tab-Schließen Zusammenfassung senden
-  addEventListener("visibilitychange", ()=> {
-    if (document.visibilityState === "hidden") finish();
-  });
+    if (images.length < 2) {
+      statusEl.textContent = "Zu wenige Bilder in images.json (mind. 2 benötigt).";
+      return;
+    }
+    showPair();
+
+    document.getElementById("btnLeft").addEventListener("click", ()=>onChoose("left"));
+    document.getElementById("btnRight").addEventListener("click", ()=>onChoose("right"));
+    document.getElementById("btnTie").addEventListener("click", ()=>onChoose("tie"));
+    document.getElementById("btnFinish").addEventListener("click", finish);
+
+    // Beim Tab-Schließen/Wechsel: Summary senden
+    addEventListener("visibilitychange", ()=> {
+      if (document.visibilityState === "hidden") finish();
+    });
+    addEventListener("beforeunload", ()=> finish());
+
+  } catch (e) {
+    console.error(e);
+    statusEl.textContent = "Fehler beim Laden von images.json.";
+  }
 })();
