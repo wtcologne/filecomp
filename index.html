@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bild-Duelle mit ELO</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; }
+    .wrap { max-width: 900px; margin: 0 auto; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
+    img { width: 100%; height: auto; display: block; border-radius: 8px; }
+    .controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .5rem; margin-top: 1rem; }
+    button { padding: .9rem 1rem; border: 0; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .muted { color:#666; font-size:.9rem; margin-top:.5rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Welches Bild ist besser?</h1>
+    <p>Klicke bei jedem Duell auf den Gewinner. Am Ende ist alles automatisch gespeichert.</p>
+
+    <div class="row">
+      <div><img id="imgA" alt="Bild A" /></div>
+      <div><img id="imgB" alt="Bild B" /></div>
+    </div>
+
+    <div class="controls">
+      <button id="btnLeft">← Links gewinnt</button>
+      <button id="btnTie">Unentschieden</button>
+      <button id="btnRight">Rechts gewinnt →</button>
+    </div>
+
+    <p class="muted">Tipp: ↑/↓ wählen. Schließen ist ok – wir senden jede Stimme sofort.</p>
+    <button id="btnFinish" style="margin-top:1rem;">Fertig & Zusammenfassung senden</button>
+
+    <p id="status" class="muted"></p>
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
