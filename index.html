@@ -2,40 +2,126 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bild-Duelle mit ELO</title>
+
+  <!-- (Optional) schöne Schrift -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: system-ui, sans-serif; margin: 2rem; }
-    .wrap { max-width: 900px; margin: 0 auto; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
-    img { width: 100%; height: auto; display: block; border-radius: 8px; }
-    .controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .5rem; margin-top: 1rem; }
-    button { padding: .9rem 1rem; border: 0; border-radius: 8px; cursor: pointer; font-weight: 600; }
-    .muted { color:#666; font-size:.9rem; margin-top:.5rem; }
+    :root{
+      --bg: #0b1020;
+      --card: #11162a;
+      --text: #e7ecff;
+      --muted: #a7b0d0;
+      --accent: #6aa5ff;
+      --accent-2: #10b981; /* grün */
+      --danger: #ef4444;
+      --btn: #1a2340;
+      --btn-hover: #223059;
+      --ring: rgba(106,165,255,.45);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f7f8fc; --card:#ffffff; --text:#0b1020; --muted:#58607d;
+        --btn:#eef2ff; --btn-hover:#e3e8ff; --ring: rgba(99,102,241,.35);
+      }
+    }
+    * { box-sizing: border-box; }
+    body{
+      margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1000px 600px at 50% -10%, rgba(106,165,255,.15), transparent) var(--bg);
+      color: var(--text); line-height: 1.45;
+    }
+    .wrap{ max-width: 1100px; margin: 32px auto; padding: 0 16px; }
+    header{ display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+    header h1{ margin:0; font-size: clamp(22px, 3vw, 30px); letter-spacing: .2px; }
+    .card{
+      background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 18px; border: 1px solid rgba(255,255,255,.05);
+    }
+    .grid{
+      display: grid; gap: 16px;
+      grid-template-columns: 1fr 1fr;
+    }
+    @media (max-width: 900px){ .grid{ grid-template-columns: 1fr; } }
+
+    .imgbox{
+      position: relative; overflow: hidden; border-radius: 14px; background: #0a0f1e;
+      border: 1px solid rgba(255,255,255,.06);
+    }
+    .imgbox img{
+      display:block; width:100%; height:auto; object-fit: contain;
+      transition: transform .25s ease;
+    }
+    .imgbox:hover img{ transform: scale(1.01); }
+
+    .controls{
+      display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 14px;
+    }
+    @media (max-width: 520px){ .controls{ grid-template-columns: 1fr; } }
+
+    button{
+      appearance: none; border: 0; border-radius: 12px; padding: 14px 16px;
+      background: var(--btn); color: var(--text); font-weight: 700; cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0,0,0,.25);
+      transition: transform .05s ease, background .15s ease, box-shadow .15s ease;
+    }
+    button:hover{ background: var(--btn-hover); }
+    button:active{ transform: translateY(1px); }
+    button:focus-visible{ outline: 3px solid var(--ring); outline-offset: 2px; }
+
+    #btnLeft{ background: linear-gradient(0deg, rgba(99,102,241,.15), transparent), var(--btn); }
+    #btnRight{ background: linear-gradient(0deg, rgba(16,185,129,.18), transparent), var(--btn); }
+    #btnTie{ background: linear-gradient(0deg, rgba(168,85,247,.18), transparent), var(--btn); }
+
+    .hint{ color: var(--muted); font-size: 14px; margin: 8px 0 0; }
+    .footer{
+      display:flex; align-items:center; justify-content: space-between; gap:12px; flex-wrap: wrap; margin-top: 14px;
+    }
+    .status{
+      color: var(--muted); font-size: 14px; padding: 10px 12px; background: rgba(255,255,255,.04);
+      border-radius: 10px; border: 1px solid rgba(255,255,255,.06);
+    }
+    .finish{
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      color: #0b1020;
+    }
+    .muted{ color: var(--muted); }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>Welches Bild ist besser?</h1>
-    <p>Klicke bei jedem Duell auf den Gewinner. Am Ende ist alles automatisch gespeichert.</p>
+    <header>
+      <h1>Welches Bild ist besser?</h1>
+      <button id="btnFinish" class="finish">Fertig &amp; senden</button>
+    </header>
 
-    <div class="row">
-      <div><img id="imgA" alt="Bild A" /></div>
-      <div><img id="imgB" alt="Bild B" /></div>
+    <div class="card">
+      <p class="muted" style="margin-top:0">Klicke bei jedem Duell auf den Gewinner. Am Ende wird automatisch eine Zusammenfassung hochgeladen.</p>
+
+      <div class="grid" style="margin-top:14px">
+        <div class="imgbox"><img id="imgA" alt="Bild A" /></div>
+        <div class="imgbox"><img id="imgB" alt="Bild B" /></div>
+      </div>
+
+      <div class="controls">
+        <button id="btnLeft">← Links gewinnt</button>
+        <button id="btnTie">Unentschieden</button>
+        <button id="btnRight">Rechts gewinnt →</button>
+      </div>
+
+      <div class="footer">
+        <p class="hint">Tipp: Pfeiltasten ↑/↓ nutzen. Schließen ist ok – wir senden am Ende automatisch.</p>
+        <p id="status" class="status">Bereit.</p>
+      </div>
     </div>
-
-    <div class="controls">
-      <button id="btnLeft">← Links gewinnt</button>
-      <button id="btnTie">Unentschieden</button>
-      <button id="btnRight">Rechts gewinnt →</button>
-    </div>
-
-    <p class="muted">Tipp: ↑/↓ wählen. Schließen ist ok – wir senden jede Stimme sofort.</p>
-    <button id="btnFinish" style="margin-top:1rem;">Fertig & Zusammenfassung senden</button>
-
-    <p id="status" class="muted"></p>
   </div>
 
+  <!-- Dein Script muss am Ende bleiben -->
   <script type="module" src="./app.js"></script>
 </body>
 </html>
