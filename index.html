@@ -16,8 +16,7 @@
       --text: #e7ecff;
       --muted: #a7b0d0;
       --accent: #6aa5ff;
-      --accent-2: #10b981; /* grün */
-      --danger: #ef4444;
+      --accent-2: #10b981;
       --btn: #1a2340;
       --btn-hover: #223059;
       --ring: rgba(106,165,255,.45);
@@ -31,44 +30,64 @@
       }
     }
     * { box-sizing: border-box; }
+    html, body { height: 100%; }
     body{
       margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(1000px 600px at 50% -10%, rgba(106,165,255,.15), transparent) var(--bg);
+      background: radial-gradient(900px 520px at 50% -10%, rgba(106,165,255,.15), transparent) var(--bg);
       color: var(--text); line-height: 1.45;
+      font-size: 15px; /* etwas kompakter */
     }
-    .wrap{ max-width: 1100px; margin: 32px auto; padding: 0 16px; }
-    header{ display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
-    header h1{ margin:0; font-size: clamp(22px, 3vw, 30px); letter-spacing: .2px; }
+    .wrap{
+      max-width: 1180px; margin: 18px auto; padding: 0 14px;
+      display: flex; flex-direction: column; gap: 12px;
+      min-height: calc(100vh - 36px);
+    }
+    header{ display: flex; align-items: center; justify-content: center; }
+    header h1{ margin:6px 0 2px; font-size: clamp(20px, 2.2vw, 26px); letter-spacing: .2px; }
+
     .card{
       background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
-      padding: 18px; border: 1px solid rgba(255,255,255,.05);
+      padding: 16px; border: 1px solid rgba(255,255,255,.05);
+      display: flex; flex-direction: column; gap: 10px;
     }
+
+    /* Bildbereich kompakt halten, damit Full-HD ohne Scroll passt */
     .grid{
-      display: grid; gap: 16px;
+      display: grid; gap: 12px;
       grid-template-columns: 1fr 1fr;
+      align-items: stretch;
     }
     @media (max-width: 900px){ .grid{ grid-template-columns: 1fr; } }
 
     .imgbox{
       position: relative; overflow: hidden; border-radius: 14px; background: #0a0f1e;
       border: 1px solid rgba(255,255,255,.06);
+      height: clamp(260px, 38vh, 460px); /* << Höhe begrenzt */
+      cursor: pointer;                 /* klickbar */
+      display: flex; align-items: center; justify-content: center;
     }
     .imgbox img{
-      display:block; width:100%; height:auto; object-fit: contain;
-      transition: transform .25s ease;
+      display:block; max-width:100%; max-height:100%;
+      width:auto; height:auto; object-fit: contain;
+      transition: transform .15s ease, filter .15s ease;
     }
     .imgbox:hover img{ transform: scale(1.01); }
 
+    .hint{ color: var(--muted); font-size: 13px; margin: 0 0 2px; text-align: center; }
+
+    /* Alle Buttons unten */
     .controls{
-      display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 14px;
+      display:grid; grid-template-columns: 1fr 1fr 1fr 1.2fr; gap: 10px; margin-top: 4px;
+      align-items: center;
     }
-    @media (max-width: 520px){ .controls{ grid-template-columns: 1fr; } }
+    @media (max-width: 720px){ .controls{ grid-template-columns: 1fr; } }
 
     button{
-      appearance: none; border: 0; border-radius: 12px; padding: 14px 16px;
+      appearance: none; border: 0; border-radius: 12px; padding: 12px 14px;
       background: var(--btn); color: var(--text); font-weight: 700; cursor: pointer;
       box-shadow: 0 6px 18px rgba(0,0,0,.25);
       transition: transform .05s ease, background .15s ease, box-shadow .15s ease;
+      font-size: 15px;
     }
     button:hover{ background: var(--btn-hover); }
     button:active{ transform: translateY(1px); }
@@ -78,50 +97,68 @@
     #btnRight{ background: linear-gradient(0deg, rgba(16,185,129,.18), transparent), var(--btn); }
     #btnTie{ background: linear-gradient(0deg, rgba(168,85,247,.18), transparent), var(--btn); }
 
-    .hint{ color: var(--muted); font-size: 14px; margin: 8px 0 0; }
-    .footer{
-      display:flex; align-items:center; justify-content: space-between; gap:12px; flex-wrap: wrap; margin-top: 14px;
-    }
-    .status{
-      color: var(--muted); font-size: 14px; padding: 10px 12px; background: rgba(255,255,255,.04);
-      border-radius: 10px; border: 1px solid rgba(255,255,255,.06);
-    }
-    .finish{
+    /* "Fertig & senden" größer und auffälliger */
+    #btnFinish{
       background: linear-gradient(90deg, var(--accent), var(--accent-2));
       color: #0b1020;
+      padding: 14px 22px;
+      font-size: 16px;
     }
-    .muted{ color: var(--muted); }
+
+    .footer{
+      display:flex; align-items:center; justify-content: space-between; gap:10px; flex-wrap: wrap; margin-top: 6px;
+    }
+    .status{
+      color: var(--muted); font-size: 13px; padding: 8px 10px; background: rgba(255,255,255,.04);
+      border-radius: 10px; border: 1px solid rgba(255,255,255,.06);
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
       <h1>Welches Bild ist besser?</h1>
-      <button id="btnFinish" class="finish">Fertig &amp; senden</button>
     </header>
 
     <div class="card">
-      <p class="muted" style="margin-top:0">Klicke bei jedem Duell auf den Gewinner. Am Ende wird automatisch eine Zusammenfassung hochgeladen.</p>
+      <p class="hint">Klicke auf ein Bild (links/rechts) oder nutze die Buttons. Am Ende wird automatisch eine Zusammenfassung hochgeladen.</p>
 
-      <div class="grid" style="margin-top:14px">
-        <div class="imgbox"><img id="imgA" alt="Bild A" /></div>
-        <div class="imgbox"><img id="imgB" alt="Bild B" /></div>
+      <div class="grid" style="margin-top:6px">
+        <div id="boxA" class="imgbox" title="Links gewinnt (anklicken)"><img id="imgA" alt="Bild A" /></div>
+        <div id="boxB" class="imgbox" title="Rechts gewinnt (anklicken)"><img id="imgB" alt="Bild B" /></div>
       </div>
 
+      <!-- Alle Knöpfe unten -->
       <div class="controls">
         <button id="btnLeft">← Links gewinnt</button>
         <button id="btnTie">Unentschieden</button>
         <button id="btnRight">Rechts gewinnt →</button>
+        <button id="btnFinish">Fertig &amp; senden</button>
       </div>
 
       <div class="footer">
-        <p class="hint">Tipp: Pfeiltasten ↑/↓ nutzen. Schließen ist ok – wir senden am Ende automatisch.</p>
+        <p class="hint">Tipp: Pfeiltasten ↑/↓ wählen. Schließen ist ok – wir senden am Ende automatisch.</p>
         <p id="status" class="status">Bereit.</p>
       </div>
     </div>
   </div>
 
-  <!-- Dein Script muss am Ende bleiben -->
+  <!-- Dein Script MUSS am Ende bleiben -->
+  <script type="module">
+    // Bildflächen klickbar machen (IDs aus app.js nutzen)
+    const boxA = document.getElementById('boxA');
+    const boxB = document.getElementById('boxB');
+
+    // Warten bis app.js die Handler setzt
+    window.addEventListener('DOMContentLoaded', () => {
+      // Klickevents simulieren die Button-Klicks
+      const btnLeft  = document.getElementById('btnLeft');
+      const btnRight = document.getElementById('btnRight');
+
+      boxA.addEventListener('click', () => btnLeft.click());
+      boxB.addEventListener('click', () => btnRight.click());
+    });
+  </script>
   <script type="module" src="./app.js"></script>
 </body>
 </html>
